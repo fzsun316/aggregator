@@ -137,7 +137,7 @@ class Traffic:
 				stdout.append(request_url)
 				r = requests.get(request_url)
 				response_json = r.json()
-				print response_json
+				# print response_json
 				# buf = cStringIO.StringIO()
 				# c = pycurl.Curl()
 				# c.setopt(c.URL, request_url)
@@ -260,7 +260,7 @@ class Traffic:
 			# response_string = buf.getvalue()
 			# # print response_string
 			# response = json.loads(response_string)
-			print response_json
+			# print response_json
 			links = response_json.get("Response").get("Link")
 			stdout.append("downloadTrafficForAllLinks request_url response")
 			for link in links:
