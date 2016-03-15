@@ -8,8 +8,6 @@ import StringIO, pickle, csv
 import thread
 import time
 from sets import Set
-import pycurl
-import cStringIO
 import json
 import datetime
 from myapp import scheduler
