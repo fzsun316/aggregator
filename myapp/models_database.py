@@ -12,8 +12,8 @@ import json
 import datetime
 from myapp import scheduler
 
-MONGODB_HOST = 'localhost'
-# MONGODB_HOST = '129.59.107.160'
+# MONGODB_HOST = 'localhost'
+MONGODB_HOST = '129.59.107.160'
 MONGODB_PORT = 27017
 connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
 
