@@ -1,6 +1,6 @@
 from flask_apscheduler import APScheduler
 import datetime
-# from models_database import GTFS, Weather, Traffic
+# from myapp import models_database
 
 
 class Config(object):
@@ -17,7 +17,7 @@ class Config(object):
             'func': 'myapp.models_database:request_realtime_traffic_data',
             'args': (),
             'trigger': 'interval',
-            'seconds': 60
+            'seconds': 10
         },
         {
             'id': 'request_static_gtfs_data',
