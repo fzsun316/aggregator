@@ -8,11 +8,12 @@ import StringIO, pickle, csv
 import thread
 import time
 from sets import Set
+import pycurl
+import cStringIO
 import json
 import datetime
 from myapp import scheduler
 
-# MONGODB_HOST = 'localhost'
 MONGODB_HOST = '129.59.107.160'
 MONGODB_PORT = 27017
 connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
@@ -46,7 +47,6 @@ class Traffic:
 	COLLECTION_SHAPEID_LINKID_NAME = 'shapeid_linkid'
 	COLLECTION_LINKID_DETAILS_NAME = 'linkid_details'
 	COLLECTION_SHAPEID_COORS_NAME = 'shapeid_coordinates'
-	
 
 
 	def __init__(self):
@@ -55,6 +55,7 @@ class Traffic:
 	def getMapShapes(self):
 		global stdout
 		stdout.append("getMapShapes")
+		print "getMapShapes"
 		# Check if exist in db
 		db_collection = connection[self.DB_NAME][self.COLLECTION_SHAPEID_COORS_NAME]
 		gTFS = GTFS()
@@ -92,6 +93,7 @@ class Traffic:
 	def sendRequestsToCalculateRoute(self):
 		global stdout
 		stdout.append("sendRequestsToCalculateRoute")
+		print "sendRequestsToCalculateRoute"
 		if self.checkCachedMapShouldBeUpdated():
 			pass
 		else:
@@ -108,7 +110,6 @@ class Traffic:
 		index=0
 		map_shapeID_coordinates = {}
 		iii=0
-		stdout.append("start calculate routes")
 		for shapeID in map_shape.keys():
 			map_shapeID_coordinates[shapeID] = []
 			routing_req = "http://route.cit.api.here.com/routing/7.2/calculateroute.json?app_id="+self.HERE_APP_ID+"&app_code="+self.HERE_APP_CODE
@@ -131,32 +132,38 @@ class Traffic:
 				for j in range(0, len(map_shapeID_coordinates[shapeID][i])):
 					url_request += "&waypoint" + str(j) + "=geo!" + str(map_shapeID_coordinates[shapeID][i][j][0])+","+str(map_shapeID_coordinates[shapeID][i][j][1])
 				array_url.append(url_request)
-
+			m = pycurl.CurlMulti()
+			reqs = []
+			for one_url in array_url:
+				response = cStringIO.StringIO()
+				handle = pycurl.Curl()
+				handle.setopt(pycurl.URL, one_url)
+				handle.setopt(pycurl.WRITEFUNCTION, response.write)
+				req = (one_url, response, handle)
+				m.add_handle(req[2])
+				reqs.append(req)
+			SELECT_TIMEOUT = 1.0
+			num_handles = len(reqs)
+			while num_handles:
+				ret = m.select(SELECT_TIMEOUT)
+				if ret==-1: continue
+				while 1:
+					ret, num_handles = m.perform()
+					if ret != pycurl.E_CALL_MULTI_PERFORM: 
+						break
 			map_shapeID_linkID[shapeID] = []
-			for request_url in array_url:
-				stdout.append(request_url)
-				r = requests.get(request_url)
-				response_json = r.json()
-				# print response_json
-				# buf = cStringIO.StringIO()
-				# c = pycurl.Curl()
-				# c.setopt(c.URL, request_url)
-				# c.setopt(c.WRITEFUNCTION, buf.write)
-				# stdout.append("request_url beforeperform")
-				# c.perform()
-				# stdout.append("request_url perform")
-				# response_string = buf.getvalue()
-				# # print 'response_string', response_string
-				# response_json = json.loads(response_string)
+			for req in reqs:
+				# print req[1].getvalue()
+				response_string = req[1].getvalue()
+				# print 'response_string', response_string
+				response_json = json.loads(response_string)
 				response = response_json.get("response")
-				stdout.append("sendRequestsToCalculateRoute request_url response")
 				if response is None:
 					continue
 				route = response.get("route")
 				if route is None:
 					continue
 				waypoints = route[0].get("waypoint")
-				stdout.append("request_url waypoints"+str(len(waypoints)))
 				for waypoint in waypoints:
 					linkid = waypoint.get("linkId")
 					if linkid.startswith("+"):
@@ -175,15 +182,16 @@ class Traffic:
 					# 	if entry_map_linkID["mappedPosition"] != mappedPosition:
 					# 		print 'waypoint', waypoint
 					# 		print 'entry_map_linkID', entry_map_linkID
-					array_tmp = map_shapeID_linkID[shapeID]
-					array_tmp.append(linkid)
-					map_shapeID_linkID[shapeID] = array_tmp
-
+					map_shapeID_linkID[shapeID].append(linkid)
+					# print '%f,%f' % (mappedPosition['latitude'], mappedPosition['longitude'])
+			
+			# print 'map_shapeID_linkID: ', map_shapeID_linkID
+			# print 'map_linkID_details', map_linkID_details
 			iii+=1
 			sssss = ' $ progress:'+str(iii)+'/'+str(len(map_shape.keys()))
 			stdout.append(sssss)
 			print sssss
-			# if iii>3:
+			# if iii>5:
 			# 	break
 
 		# save_obj(map_linkID_details, "map_linkID_details")
@@ -205,6 +213,7 @@ class Traffic:
 	def checkCachedMapShouldBeUpdated(self):
 		global stdout
 		stdout.append("checkCachedMapShouldBeUpdated")
+		print "checkCachedMapShouldBeUpdated"
 		flag_shapeID_linkID = False
 		db_collection = connection[self.DB_NAME][self.COLLECTION_SHAPEID_LINKID_NAME]
 		gTFS = GTFS()
@@ -229,6 +238,7 @@ class Traffic:
 	def downloadTrafficForAllLinks(self):
 		global stdout
 		stdout.append("downloadTrafficForAllLinks")
+		print "downloadTrafficForAllLinks"
 		global cached_map_linkID_details
 		map_linkID_traffic = {}
 		link_req = "https://route.st.nlp.nokia.com/routing/6.2/getlinkinfo.json?app_id="+self.HERE_APP_ID+"&app_code="+self.HERE_APP_CODE
@@ -247,22 +257,31 @@ class Traffic:
 				url_request += ','+array_linkID[i]
 		if (len(array_linkID)%step)!=0:
 			array_url.append(url_request)
-
-		for request_url in array_url:
-			# stdout.append(request_url)
-			r = requests.get(request_url)
-			response_json = r.json()
-			# buf = cStringIO.StringIO()
-			# c = pycurl.Curl()
-			# c.setopt(c.URL, request_url)
-			# c.setopt(c.WRITEFUNCTION, buf.write)
-			# c.perform()
-			# response_string = buf.getvalue()
-			# # print response_string
-			# response = json.loads(response_string)
-			# print response_json
-			links = response_json.get("Response").get("Link")
-			stdout.append("downloadTrafficForAllLinks request_url response")
+		m = pycurl.CurlMulti()
+		reqs = []
+		for one_url in array_url:
+			response = cStringIO.StringIO()
+			handle = pycurl.Curl()
+			handle.setopt(pycurl.URL, one_url)
+			handle.setopt(pycurl.WRITEFUNCTION, response.write)
+			req = (one_url, response, handle)
+			m.add_handle(req[2])
+			reqs.append(req)
+		SELECT_TIMEOUT = 1.0
+		num_handles = len(reqs)
+		while num_handles:
+			ret = m.select(SELECT_TIMEOUT)
+			if ret==-1: continue
+			while 1:
+				ret, num_handles = m.perform()
+				if ret != pycurl.E_CALL_MULTI_PERFORM: 
+					break
+		for req in reqs:
+			response_string = req[1].getvalue()
+			# print response_string
+			response = json.loads(response_string)
+			# print response
+			links = response.get("Response").get("Link")
 			for link in links:
 				linkid = link.get("LinkId")
 				if linkid.startswith("+"):
@@ -273,48 +292,13 @@ class Traffic:
 					link_val["dynamicSpeedInfo"] = link.get("DynamicSpeedInfo")
 					link_val["speedLimit"] = link.get("SpeedLimit")
 					map_linkID_traffic[linkid] = link_val
-
-		# m = pycurl.CurlMulti()
-		# reqs = []
-		# for one_url in array_url:
-		# 	response = cStringIO.StringIO()
-		# 	handle = pycurl.Curl()
-		# 	handle.setopt(pycurl.URL, one_url)
-		# 	handle.setopt(pycurl.WRITEFUNCTION, response.write)
-		# 	req = (one_url, response, handle)
-		# 	m.add_handle(req[2])
-		# 	reqs.append(req)
-		# SELECT_TIMEOUT = 1.0
-		# num_handles = len(reqs)
-		# while num_handles:
-		# 	ret = m.select(SELECT_TIMEOUT)
-		# 	if ret==-1: continue
-		# 	while 1:
-		# 		ret, num_handles = m.perform()
-		# 		if ret != pycurl.E_CALL_MULTI_PERFORM: 
-		# 			break
-		# for req in reqs:
-		# 	response_string = req[1].getvalue()
-		# 	# print response_string
-		# 	response = json.loads(response_string)
-		# 	# print response
-		# 	links = response.get("Response").get("Link")
-		# 	for link in links:
-		# 		linkid = link.get("LinkId")
-		# 		if linkid.startswith("+"):
-		# 			linkid = linkid[1:]
-		# 		link_val = map_linkID_traffic.get(linkid)
-		# 		if link_val is None:
-		# 			link_val = {}
-		# 			link_val["dynamicSpeedInfo"] = link.get("DynamicSpeedInfo")
-		# 			link_val["speedLimit"] = link.get("SpeedLimit")
-		# 			map_linkID_traffic[linkid] = link_val
 		return map_linkID_traffic
 
 
 	def checkAndCacheMapLinkidDetails(self):
 		global stdout
 		stdout.append("checkAndCacheMapLinkidDetails")
+		print "checkAndCacheMapLinkidDetails"
 
 		# check if static gtfs database exists
 		# gTFS = GTFS()
@@ -383,6 +367,7 @@ class Traffic:
 					db_collection.update({'_id': _id}, {'$set': {'traffic_series':oldTrafficSeries}})
 
 		stdout.append("FINISH: request_realtime_traffic_data")
+		print 'FINISH: request_realtime_traffic_data'
 		scheduler.resume_job('request_realtime_traffic_data')
 
 	def requestTrafficForAllRoutes(self):
@@ -390,6 +375,7 @@ class Traffic:
 		if len(stdout)>9999:
 			stdout=[]
 		stdout.append("START: request_realtime_traffic_data")
+		print 'START: request_realtime_traffic_data'
 		scheduler.pause_job('request_realtime_traffic_data')
 		# r = requests.post("https://127.0.0.1:"+str(MY_PORT)+"/scheduler/jobs/request_realtime_traffic_data/pause")
 		thread.start_new_thread(self.checkAndCacheMapLinkidDetails, ())
