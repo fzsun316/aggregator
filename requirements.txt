@@ -2,3 +2,4 @@ flask_apscheduler
 pymongo
 pycurl
 requests
+uwsgi
