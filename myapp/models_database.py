@@ -603,6 +603,7 @@ class GTFS:
 			msg = protobuf_to_dict(feed)
 			msg['query_time'] = query_time
 
+
 			db.vehicle_positions.insert(msg);
 			# alerts
 			feed = gtfs_realtime_pb2.FeedMessage()
@@ -622,6 +623,8 @@ class GTFS:
 			#         f.write(feed.SerializeToString())
 			msg = protobuf_to_dict(feed)
 			msg['query_time'] = query_time
+
+			stdout.append(msg)
 
 			db.trip_updates.insert(msg);
 			stdout.append("requestRealtimeGTFSData: Finished")
