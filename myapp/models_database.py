@@ -598,8 +598,8 @@ class GTFS:
 			feed = gtfs_realtime_pb2.FeedMessage()
 			vehicledata = urllib.urlopen('http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/vehicle/vehiclepositions.pb')
 			feed.ParseFromString(vehicledata.read())
-			with open("./vehiclepositions.pb", "wb") as f:
-			        f.write(feed.SerializeToString())
+			# with open("./vehiclepositions.pb", "wb") as f:
+			#         f.write(feed.SerializeToString())
 			msg = protobuf_to_dict(feed)
 			msg['query_time'] = query_time
 
@@ -608,8 +608,8 @@ class GTFS:
 			feed = gtfs_realtime_pb2.FeedMessage()
 			alertdata = urllib.urlopen('http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/alert/alerts.pb')
 			feed.ParseFromString(alertdata.read())
-			with open("./alerts.pb", "wb") as f:
-			        f.write(feed.SerializeToString())
+			# with open("./alerts.pb", "wb") as f:
+			#         f.write(feed.SerializeToString())
 			msg = protobuf_to_dict(feed)
 			msg['query_time'] = query_time
 
@@ -618,8 +618,8 @@ class GTFS:
 			feed = gtfs_realtime_pb2.FeedMessage()
 			tripsdata = urllib.urlopen('http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/tripupdate/tripupdates.pb')
 			feed.ParseFromString(tripsdata.read())
-			with open("./tripupdates.pb", "wb") as f:
-			        f.write(feed.SerializeToString())
+			# with open("./tripupdates.pb", "wb") as f:
+			#         f.write(feed.SerializeToString())
 			msg = protobuf_to_dict(feed)
 			msg['query_time'] = query_time
 
