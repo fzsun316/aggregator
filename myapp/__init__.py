@@ -1,9 +1,9 @@
 from flask import Flask
 app = Flask(__name__)
 
-import ssl
-sSLContext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-sSLContext.load_cert_chain(certfile="myapp/cert.pem", keyfile="myapp/cert.pem")
+#import ssl
+#sSLContext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+#sSLContext.load_cert_chain(certfile="myapp/cert.pem", keyfile="myapp/cert.pem")
 
 #APScheduler
 from flask_apscheduler import APScheduler
