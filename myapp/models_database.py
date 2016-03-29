@@ -593,7 +593,7 @@ class GTFS:
 			global stdout
 			stdout.append("requestRealtimeGTFSData: Started")
 			db = connection.thub_database
-			query_time = datetime.now()
+			query_time = datetime.datetime.now()
 			feed = gtfs_realtime_pb2.FeedMessage()
 			vehicledata = urllib.urlopen('http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/vehicle/vehiclepositions.pb')
 			feed.ParseFromString(vehicledata.read())
