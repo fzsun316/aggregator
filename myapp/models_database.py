@@ -13,9 +13,13 @@ import cStringIO
 import json
 import datetime
 from myapp import scheduler
+from google.transit import gtfs_realtime_pb2
+from protobuf_to_dict import protobuf_to_dict
+import urllib, sys
+from bson.objectid import ObjectId
 
-# MONGODB_HOST = 'localhost'
-MONGODB_HOST = '129.59.107.160'
+MONGODB_HOST = 'localhost'
+# MONGODB_HOST = '129.59.107.160'
 MONGODB_PORT = 27017
 connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
 
@@ -36,6 +40,10 @@ def request_realtime_traffic_data():
 def request_static_gtfs_data():
 	gTFS = GTFS()
 	gTFS.requestAllVersions()
+
+def request_realtime_gtfs_data():
+	gTFS = GTFS()
+	gTFS.requestRealtimeGTFSData()
 
 class Traffic:
 
@@ -579,6 +587,47 @@ class GTFS:
 					
 		except Exception as e:
 			print "Unexpected error [getFeedVersions]: ", e
+
+	def requestRealtimeGTFSData(self):
+		try:
+			global stdout
+			stdout.append("requestRealtimeGTFSData: Started")
+			db = connection.thub_database
+			query_time = datetime.now()
+			feed = gtfs_realtime_pb2.FeedMessage()
+			vehicledata = urllib.urlopen('http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/vehicle/vehiclepositions.pb')
+			feed.ParseFromString(vehicledata.read())
+			with open("./vehiclepositions.pb", "wb") as f:
+			        f.write(feed.SerializeToString())
+			msg = protobuf_to_dict(feed)
+			msg['query_time'] = query_time
+
+			db.vehicle_positions.insert(msg);
+			# alerts
+			feed = gtfs_realtime_pb2.FeedMessage()
+			alertdata = urllib.urlopen('http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/alert/alerts.pb')
+			feed.ParseFromString(alertdata.read())
+			with open("./alerts.pb", "wb") as f:
+			        f.write(feed.SerializeToString())
+			msg = protobuf_to_dict(feed)
+			msg['query_time'] = query_time
+
+			db.alerts.insert(msg)
+			#trips
+			feed = gtfs_realtime_pb2.FeedMessage()
+			tripsdata = urllib.urlopen('http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/tripupdate/tripupdates.pb')
+			feed.ParseFromString(tripsdata.read())
+			with open("./tripupdates.pb", "wb") as f:
+			        f.write(feed.SerializeToString())
+			msg = protobuf_to_dict(feed)
+			msg['query_time'] = query_time
+
+			db.trip_updates.insert(msg);
+			stdout.append("requestRealtimeGTFSData: Finished")
+		except Exception as e:
+			stdout.append("requestRealtimeGTFSDataError")
+			stdout.append(e)
+			print "Unexpected error [requestRealtimeData]: ", e
 
 
 	

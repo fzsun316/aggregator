@@ -25,6 +25,13 @@ class Config(object):
             'args': (),
             'trigger': 'cron',
             'hour': '1'
+        },
+        {
+            'id': 'request_realtime_gtfs_data',
+            'func': 'myapp.models_database:request_realtime_gtfs_data',
+            'args': (),
+            'trigger': 'interval',
+            'seconds': 15
         }
     ]
 
