@@ -614,7 +614,7 @@ class GTFS:
 			msg['query_time'] = query_time
 
 
-			db["vehicle_positions2222"].insert(msg);
+			db["vehicle_positions"].insert(msg);
 			# alerts
 			feed = gtfs_realtime_pb2.FeedMessage()
 
@@ -632,7 +632,7 @@ class GTFS:
 			msg = protobuf_to_dict(feed)
 			msg['query_time'] = query_time
 
-			db["alerts2222"].insert(msg)
+			db["alerts"].insert(msg)
 			#trips
 			feed = gtfs_realtime_pb2.FeedMessage()
 
@@ -651,7 +651,7 @@ class GTFS:
 			msg = protobuf_to_dict(feed)
 			msg['query_time'] = query_time
 
-			db["trip_updates2222"].insert(msg);
+			db["trip_updates"].insert(msg);
 			stdout.append("requestRealtimeGTFSData: Finished")
 			print "requestRealtimeGTFSData: Finished"
 		# except Exception as e:
