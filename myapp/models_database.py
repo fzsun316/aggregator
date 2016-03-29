@@ -604,7 +604,7 @@ class GTFS:
 			msg['query_time'] = query_time
 
 
-			db.vehicle_positions.insert(msg);
+			db["vehicle_positions2222"].insert(msg);
 			# alerts
 			feed = gtfs_realtime_pb2.FeedMessage()
 			alertdata = urllib.urlopen('http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/alert/alerts.pb')
@@ -614,7 +614,7 @@ class GTFS:
 			msg = protobuf_to_dict(feed)
 			msg['query_time'] = query_time
 
-			db.alerts.insert(msg)
+			db["alerts2222"].insert(msg)
 			#trips
 			feed = gtfs_realtime_pb2.FeedMessage()
 			tripsdata = urllib.urlopen('http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/tripupdate/tripupdates.pb')
@@ -624,9 +624,7 @@ class GTFS:
 			msg = protobuf_to_dict(feed)
 			msg['query_time'] = query_time
 
-			stdout.append(msg)
-
-			db.trip_updates.insert(msg);
+			db["trip_updates2222"].insert(msg);
 			stdout.append("requestRealtimeGTFSData: Finished")
 			print "requestRealtimeGTFSData: Finished"
 		# except Exception as e:
