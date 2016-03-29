@@ -589,9 +589,10 @@ class GTFS:
 			print "Unexpected error [getFeedVersions]: ", e
 
 	def requestRealtimeGTFSData(self):
-		try:
+		# try:
 			global stdout
 			stdout.append("requestRealtimeGTFSData: Started")
+			print "requestRealtimeGTFSData: Started"
 			db = connection.thub_database
 			query_time = datetime.datetime.now()
 			feed = gtfs_realtime_pb2.FeedMessage()
@@ -624,10 +625,11 @@ class GTFS:
 
 			db.trip_updates.insert(msg);
 			stdout.append("requestRealtimeGTFSData: Finished")
-		except Exception as e:
-			stdout.append("requestRealtimeGTFSDataError")
-			stdout.append(e)
-			print "Unexpected error [requestRealtimeData]: ", e
+			print "requestRealtimeGTFSData: Finished"
+		# except Exception as e:
+		# 	stdout.append("requestRealtimeGTFSDataError")
+		# 	stdout.append(e)
+		# 	print "Unexpected error [requestRealtimeData]: ", e
 
 
 	
