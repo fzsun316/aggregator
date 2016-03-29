@@ -596,8 +596,18 @@ class GTFS:
 			db = connection['thub_database']
 			query_time = datetime.datetime.now()
 			feed = gtfs_realtime_pb2.FeedMessage()
-			vehicledata = urllib.urlopen('http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/vehicle/vehiclepositions.pb')
-			feed.ParseFromString(vehicledata.read())
+
+			buf = cStringIO.StringIO()
+			c = pycurl.Curl()
+			request_url = 'http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/vehicle/vehiclepositions.pb'
+			c.setopt(c.URL, request_url)
+			c.setopt(c.WRITEFUNCTION, buf.write)
+			c.perform()
+			response_string = buf.getvalue()
+
+
+			# vehicledata = urllib.urlopen('http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/vehicle/vehiclepositions.pb')
+			feed.ParseFromString(response_string)
 			# with open("./vehiclepositions.pb", "wb") as f:
 			#         f.write(feed.SerializeToString())
 			msg = protobuf_to_dict(feed)
@@ -607,8 +617,16 @@ class GTFS:
 			db["vehicle_positions2222"].insert(msg);
 			# alerts
 			feed = gtfs_realtime_pb2.FeedMessage()
-			alertdata = urllib.urlopen('http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/alert/alerts.pb')
-			feed.ParseFromString(alertdata.read())
+
+			buf = cStringIO.StringIO()
+			c = pycurl.Curl()
+			request_url = 'http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/alert/alerts.pb'
+			c.setopt(c.URL, request_url)
+			c.setopt(c.WRITEFUNCTION, buf.write)
+			c.perform()
+			response_string = buf.getvalue()
+			# alertdata = urllib.urlopen('http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/alert/alerts.pb')
+			feed.ParseFromString(response_string)
 			# with open("./alerts.pb", "wb") as f:
 			#         f.write(feed.SerializeToString())
 			msg = protobuf_to_dict(feed)
@@ -617,8 +635,17 @@ class GTFS:
 			db["alerts2222"].insert(msg)
 			#trips
 			feed = gtfs_realtime_pb2.FeedMessage()
-			tripsdata = urllib.urlopen('http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/tripupdate/tripupdates.pb')
-			feed.ParseFromString(tripsdata.read())
+
+			buf = cStringIO.StringIO()
+			c = pycurl.Curl()
+			request_url = 'http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/tripupdate/tripupdates.pb'
+			c.setopt(c.URL, request_url)
+			c.setopt(c.WRITEFUNCTION, buf.write)
+			c.perform()
+			response_string = buf.getvalue()
+			# tripsdata = urllib.urlopen('http://transitdata.nashvillemta.org/TMGTFSRealTimeWebService/tripupdate/tripupdates.pb')
+
+			feed.ParseFromString(response_string)
 			# with open("./tripupdates.pb", "wb") as f:
 			#         f.write(feed.SerializeToString())
 			msg = protobuf_to_dict(feed)
