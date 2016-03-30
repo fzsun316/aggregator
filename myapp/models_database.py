@@ -51,7 +51,7 @@ class Traffic:
 	HERE_APP_ID = 'oxFV8daRXZafXLI87l7o'
 	HERE_APP_CODE = '1Af5pCupGbm6NrfnWxPDsg'
 	DB_NAME = 'thub_traffic'
-	COLLECTION_NAME = 'realtime_data2'
+	COLLECTION_NAME = 'realtime_data'
 	# DB_NAME = 'augmenteddb'
 	# COLLECTION_NAME = 'traffic'
 	COLLECTION_SHAPEID_LINKID_NAME = 'shapeid_linkid'
