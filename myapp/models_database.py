@@ -471,8 +471,11 @@ class Weather:
 
 	def downloadWeatherForCounty(self, url):
 		global stdout
+		stdout.append("weather-1")
 		r = requests.get(url)
+		stdout.append("weather-2")
 		responseJson = r.json()
+		stdout.append("weather-3")
 		if responseJson is not None:
 			document = {}
 			document['latitude'] = responseJson['latitude']
