@@ -470,6 +470,7 @@ class Weather:
 		pass
 
 	def downloadWeatherForCounty(self, url):
+		global stdout
 		r = requests.get(url)
 		responseJson = r.json()
 		if responseJson is not None:
@@ -483,13 +484,17 @@ class Weather:
 			db_collection.insert(document)
 
 	def requestWeatherForAllCounty(self):
+		global stdout
 		print 'START: request_realtime_weather_data'
 
 		for county in self.MAP_COUNTY_COOR.keys():
 			coordinate = self.MAP_COUNTY_COOR[county]
 			url = self.URL_CURRENT_FORECAST.replace('APIKEY', self.DARKSKYFORECAST_API_KEY)\
 				.replace('LATITUDE',str(coordinate[0])).replace('LONGITUDE',str(coordinate[1]))
-			thread.start_new_thread(self.downloadWeatherForCounty, (url,))
+			stdout.append("weather-url-going  to start")
+			# thread.start_new_thread(self.downloadWeatherForCounty, (url,))
+			self.downloadWeatherForCounty(url)
+			stdout.append("weather-url-going  to end")
 			
 
 class GTFS:
