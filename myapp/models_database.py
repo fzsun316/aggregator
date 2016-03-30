@@ -472,9 +472,18 @@ class Weather:
 	def downloadWeatherForCounty(self, url):
 		global stdout
 		stdout.append("weather-1")
-		r = requests.get(url)
-		stdout.append("weather-2")
-		responseJson = r.json()
+		# r = requests.get(url)
+		
+		# responseJson = r.json()
+		buf = cStringIO.StringIO()
+		c = pycurl.Curl()
+		request_url = url
+		c.setopt(c.URL, request_url)
+		c.setopt(c.WRITEFUNCTION, buf.write)
+		c.perform()
+		response_string = buf.getvalue()
+		responseJson = json.loads(response_string)
+
 		stdout.append("weather-3")
 		if responseJson is not None:
 			document = {}
