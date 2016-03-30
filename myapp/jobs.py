@@ -10,15 +10,15 @@ class Config(object):
             'func': 'myapp.models_database:request_realtime_weather_data',
             'args': (),
             'trigger': 'interval',
+            'seconds': 300
+        },
+        {
+            'id': 'request_realtime_traffic_data',
+            'func': 'myapp.models_database:request_realtime_traffic_data',
+            'args': (),
+            'trigger': 'interval',
             'seconds': 10
         },
-        # {
-        #     'id': 'request_realtime_traffic_data',
-        #     'func': 'myapp.models_database:request_realtime_traffic_data',
-        #     'args': (),
-        #     'trigger': 'interval',
-        #     'seconds': 60
-        # },
         # {
         #     'id': 'request_static_gtfs_data',
         #     'func': 'myapp.models_database:request_static_gtfs_data',

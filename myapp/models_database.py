@@ -51,7 +51,7 @@ class Traffic:
 	HERE_APP_ID = 'oxFV8daRXZafXLI87l7o'
 	HERE_APP_CODE = '1Af5pCupGbm6NrfnWxPDsg'
 	DB_NAME = 'thub_traffic'
-	COLLECTION_NAME = 'realtime_data'
+	COLLECTION_NAME = 'realtime_data2'
 	# DB_NAME = 'augmenteddb'
 	# COLLECTION_NAME = 'traffic'
 	COLLECTION_SHAPEID_LINKID_NAME = 'shapeid_linkid'
@@ -470,8 +470,6 @@ class Weather:
 		pass
 
 	def downloadWeatherForCounty(self, url):
-		global stdout
-		stdout.append("weather-1")
 		# r = requests.get(url)
 		
 		# responseJson = r.json()
@@ -484,7 +482,6 @@ class Weather:
 		response_string = buf.getvalue()
 		responseJson = json.loads(response_string)
 
-		stdout.append("weather-3")
 		if responseJson is not None:
 			document = {}
 			document['latitude'] = responseJson['latitude']
@@ -496,17 +493,14 @@ class Weather:
 			db_collection.insert(document)
 
 	def requestWeatherForAllCounty(self):
-		global stdout
 		print 'START: request_realtime_weather_data'
 
 		for county in self.MAP_COUNTY_COOR.keys():
 			coordinate = self.MAP_COUNTY_COOR[county]
 			url = self.URL_CURRENT_FORECAST.replace('APIKEY', self.DARKSKYFORECAST_API_KEY)\
 				.replace('LATITUDE',str(coordinate[0])).replace('LONGITUDE',str(coordinate[1]))
-			stdout.append("weather-url-going  to start")
 			thread.start_new_thread(self.downloadWeatherForCounty, (url,))
 			# self.downloadWeatherForCounty(url)
-			stdout.append("weather-url-going  to end")
 			
 
 class GTFS:
