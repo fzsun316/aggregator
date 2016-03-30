@@ -18,10 +18,11 @@ from protobuf_to_dict import protobuf_to_dict
 import urllib, sys
 from bson.objectid import ObjectId
 
-MONGODB_HOST = 'localhost'
+# MONGODB_HOST = 'localhost'
 # MONGODB_HOST = '129.59.107.160'
-MONGODB_PORT = 27017
-connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
+# MONGODB_PORT = 27017
+# connection = MongoClient(MONGODB_HOST, MONGODB_PORT)
+connection = MongoClient()
 
 global cached_map_linkID_details
 cached_map_linkID_details = {}
