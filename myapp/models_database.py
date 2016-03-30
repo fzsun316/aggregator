@@ -495,8 +495,8 @@ class Weather:
 			url = self.URL_CURRENT_FORECAST.replace('APIKEY', self.DARKSKYFORECAST_API_KEY)\
 				.replace('LATITUDE',str(coordinate[0])).replace('LONGITUDE',str(coordinate[1]))
 			stdout.append("weather-url-going  to start")
-			# thread.start_new_thread(self.downloadWeatherForCounty, (url,))
-			self.downloadWeatherForCounty(url)
+			thread.start_new_thread(self.downloadWeatherForCounty, (url,))
+			# self.downloadWeatherForCounty(url)
 			stdout.append("weather-url-going  to end")
 			
 
