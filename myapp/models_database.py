@@ -445,14 +445,14 @@ class Traffic:
 					db_collection.update({'_id': _id}, {'$set': {'traffic_series':oldTrafficSeries}})
 
 		stdout.append("FINISH: request_realtime_traffic_data")
-		scheduler.resume_job('request_realtime_traffic_data')
+		# scheduler.resume_job('request_realtime_traffic_data')
 
 	def requestTrafficForAllRoutes(self):
 		global stdout
 		if len(stdout)>9999:
 			stdout=[]
 		stdout.append("START: request_realtime_traffic_data")
-		scheduler.pause_job('request_realtime_traffic_data')
+		# scheduler.pause_job('request_realtime_traffic_data')
 		# r = requests.post("https://127.0.0.1:"+str(MY_PORT)+"/scheduler/jobs/request_realtime_traffic_data/pause")
 		thread.start_new_thread(self.checkAndCacheMapLinkidDetails, ())
 		
